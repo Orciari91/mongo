@@ -10,11 +10,19 @@ const collectionName = "mongoTest"
 
 const client = MongoClient(uri, config) //"config" va a ser un objeto vacio por ahora
 
-api.listen(80) 
+const port = 80
+
+api.listen(port, ()=>{
+	console.log(`server started on port ${port}`)
+}) 
+
 api.use(express.urlencoded({extended: true}))
 api.use(express.json())
 
-client.connect(err =>{
+
+api.get("/api/peliculas/", function(request, response){
+
+	client.connect(err =>{
 	if(err) throw err
 
 	const db = client.db(dbName)
@@ -39,27 +47,7 @@ client.connect(err =>{
 	})
 })
 
-api.get("/api/peliculas/", function(request, response){
+//Ver tutoriales de mongo
 
-	let elID = request.params.id
-
-	if(!elID){ 
-
-		peliculas.list(function(error, listado){
-			
-			let rta = error ? { rta : "error", error } : listado
-			response.json(rta)
-		})
-
-	} else { 
-
-			peliculas.get(elID, function(error, pelicula){
-
-			let rta = error ? { rta: "error", error } : pelicula
-
-			response.json(rta)	
-	})
-
-	}
 
 })
