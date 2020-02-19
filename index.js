@@ -1,53 +1,40 @@
-const express = require("express")
-const MongoClient() = require ("mongodb").MongoClient //Pido solo el mongoclient de todo el mongodb
-const easyDB = require("easydb-io")
 
-const api = express()
+const isEmpty = require("lodash.isempty");
+const getCollection = require("./utils/api.js").getCollection
 
-const uri = "mongodb://localhost:27017"
-const dbName = "test"
-const collectionName = "mongoTest"
+const collection = getCollection("mongoTest");
 
-const client = MongoClient(uri, config) //"config" va a ser un objeto vacio por ahora
+api.get("/api/peliculas/:id?", ({ params: { id: _id } }, response) => {
+  let query = {};
 
-const port = 80
+  if (!isEmpty(_id)) {
+    query = { ...query, _id: ObjectId(_id) };
+  }
 
-api.listen(port, ()=>{
-	console.log(`server started on port ${port}`)
-}) 
+  collection.find(query).toArray((err, result) => {
+    if (err) throw err;
+    response.json({ result });
+  });
+});
 
-api.use(express.urlencoded({extended: true}))
-api.use(express.json())
+api.post("/api/peliculas", ({ body: pelicula }, response) => {
+  collection.insertOne(pelicula.body, (err, result) => {
+    if (err) throw err;
 
+    response.json({
+      success: true,
+      message: "insertado correctamente."
+    });
+  });
+});
 
-api.get("/api/peliculas/", function(request, response){
+api.delete("/api/peliculas/:id", ({ params: { id: _id } }, response) => {
+  collection.findOneAndDelete({ _id: ObjectId(_id) }, (err, result) => {
+    if (err) throw err;
+    response.json(result);
+  });
+});
 
-	client.connect(err =>{
-	if(err) throw err
+const port = 8080;
 
-	const db = client.db(dbName)
-	const collection = db.collection(collectionName)
-
-	collection.find().toArray((err, result) => {
-		if (err)throw err
-
-		console.log({result}, result.length)
-		
-		client.close()
-	})
-
-	const obj = {name:'Carlitos', adress: 'Corriente 1234'}
-
-	collection.insertOne(obj, (err, result) => {
-		if(err) throw err
-			console.log({ result })
-		client.close()
-
-		result.map(({name}) => console.log({name}))
-	})
-})
-
-//Ver tutoriales de mongo
-
-
-})
+api.listen(port, () => console.log(`server started on ${port}`));
