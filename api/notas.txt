@@ -1,0 +1,6 @@
+asincrono - No deja que js se pase de linea sin haberla cumplido antes
+
+sincrono - si una linea tarda de mas, pasa a la siguiente
+
+Ultima clase dar el tp
+
